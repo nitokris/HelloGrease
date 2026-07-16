@@ -34,6 +34,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:${ktor_version}")
     implementation("org.drewcarlson:qbittorrent-models:${qbittorrent_version}")
     implementation("org.drewcarlson:qbittorrent-client:${qbittorrent_version}")
+    implementation("org.springframework.boot:spring-boot-starter-logging")
     runtimeOnly("org.postgresql:postgresql")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
