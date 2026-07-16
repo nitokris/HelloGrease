@@ -4,6 +4,7 @@ import com.nitokrisalpha.conf.PathConfig
 import com.nitokrisalpha.entity.JavWork
 import com.nitokrisalpha.entity.Status
 import com.nitokrisalpha.repository.JavWorkRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import qbittorrent.models.Torrent
 import java.io.File
@@ -14,6 +15,8 @@ class JavService {
     private val downloader: Downloader
     private val repository: JavWorkRepository
     private val pathConfig: PathConfig
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     constructor(downloader: Downloader, pathConfig: PathConfig, repository: JavWorkRepository) {
         this.downloader = downloader
@@ -38,12 +41,6 @@ class JavService {
                     work.status = Status.MOVED
                     repository.save(work)
                 }
-//                if (work.status == Status.MOVING) {
-//                    // do move
-//                    doMove(torrent)
-//                    work.status = Status.MOVED
-//                    repository.save(work)
-//                }
             }
         }
 
@@ -53,6 +50,7 @@ class JavService {
     }
 
     fun doMove(torrent: Torrent) {
+        log.info("start move")
         val torrentSavePath = torrent.contentPath
         val downloaderPath = downloader.basePath
         val fromPath = torrentSavePath.replace(downloaderPath, pathConfig.from)
@@ -61,10 +59,11 @@ class JavService {
         println(targetPath)
         val srcFile = File(fromPath)
         if(!srcFile.exists()) {
-            println("srcFile does not exist!!!")
+            log.warn("srcFile does not exist")
             return
         }
         if (srcFile.isFile) {
+            log.info("start copy file")
             val name = srcFile.nameWithoutExtension
             val targetFile = Paths.get(pathConfig.target, name, srcFile.name).toFile()
             if (!targetFile.exists()) {
@@ -73,6 +72,7 @@ class JavService {
                 srcFile.copyTo(targetFile, true)
             }
         } else {
+            log.info("start copy directory")
             val targetFile = File(targetPath)
             if (!targetFile.exists()) {
                 targetFile.mkdirs()
@@ -80,6 +80,7 @@ class JavService {
                 srcFile.copyRecursively(targetFile)
             }
         }
+        log.info("copy end")
     }
 
 
