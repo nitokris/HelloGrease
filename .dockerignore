@@ -3,8 +3,6 @@ build/tmp/
 build/reports/
 .idea/
 .git/
-src/
-gradle/
 gradlew*
 HELP.md
 jav.http
