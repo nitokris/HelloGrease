@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 @Table(name = "jav_works")
 public class JavWork {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Nullable
     private Long id;
 

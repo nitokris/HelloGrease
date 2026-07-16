@@ -6,8 +6,9 @@ spring:
     driver-class-name: org.postgresql.Driver
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
-  jpa:
-    generate-ddl: true
+  data:
+    jdbc:
+      dialect: postgresql
 server:
   servlet:
     context-path: /javdb
