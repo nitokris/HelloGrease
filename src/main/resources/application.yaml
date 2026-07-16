@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: javdb
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://192.168.1.236:5432/mydb}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+  jpa:
+    generate-ddl: true
+server:
+  servlet:
+    context-path: /javdb
+  port: ${SERVER_PORT:8095}
+jav:
+  from: ${JAV_FROM:/tmp}
+  target: ${JAV_TARGET:/tmp}
+qbittorrent:
+  base-url: ${QB_BASE_URL:http://192.168.1.231:8095}
+  username: ${QB_USERNAME:admin}
+  password: ${QB_PASSWORD:adminadmin}
