@@ -58,7 +58,7 @@ class JavService {
         println(fromPath)
         println(targetPath)
         val srcFile = File(fromPath)
-        if(!srcFile.exists()) {
+        if (!srcFile.exists()) {
             log.warn("srcFile does not exist")
             return
         }
@@ -88,18 +88,22 @@ class JavService {
         val findByHash = repository.findByHash(javWork.hash)
         if (findByHash != null) {
             log.info("该种子已入库")
-            return
-        }
-        repository.save(javWork)
-        if (javWork.hash != null && downloader.exists(javWork.hash)) {
-            log.info("该种子已存在：${javWork.magnet}")
-            return
+            javWork.id = findByHash.id
+        } else {
+            repository.save(javWork)
         }
         log.info("持久化")
-        javWork.status = Status.DOWNLOADING
+        if (javWork.status != Status.MOVED && javWork.status != Status.DOWNLOADING) {
+            javWork.status = Status.DOWNLOADING
+        }
         repository.save(javWork)
         log.info("开始下载")
-        downloader.download(javWork)
+        if (javWork.hash != null && downloader.exists(javWork.hash)) {
+            log.info("该种子已存在：${javWork.magnet}")
+        } else {
+            log.info("已请求qb下载")
+            downloader.download(javWork)
+        }
     }
 
 }
