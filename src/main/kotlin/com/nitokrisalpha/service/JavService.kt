@@ -87,16 +87,18 @@ class JavService {
     fun download(javWork: JavWork) {
         val findByHash = repository.findByHash(javWork.hash)
         if (findByHash != null) {
-            println("该种子已入库")
+            log.info("该种子已入库")
             return
         }
         repository.save(javWork)
         if (javWork.hash != null && downloader.exists(javWork.hash)) {
-            println("该种子已存在：${javWork.magnet}")
+            log.info("该种子已存在：${javWork.magnet}")
             return
         }
+        log.info("持久化")
         javWork.status = Status.DOWNLOADING
         repository.save(javWork)
+        log.info("开始下载")
         downloader.download(javWork)
     }
 
