@@ -9,15 +9,6 @@ spring:
   data:
     jdbc:
       dialect: postgresql
-  jpa:
-    show-sql: true
-logging:
-  level:
-    org:
-      hibernate:
-        orm:
-          jdbc:
-            bind: trace
 server:
   servlet:
     context-path: /javdb
