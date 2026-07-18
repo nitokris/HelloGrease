@@ -107,4 +107,8 @@ class JavService {
         }
     }
 
+    fun batchDownload(urls: List<String>) {
+        downloader.download(urls)
+    }
+
 }

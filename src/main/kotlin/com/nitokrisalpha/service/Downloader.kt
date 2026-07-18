@@ -8,6 +8,8 @@ interface Downloader {
 
     fun download(javWork: JavWork)
 
+    fun download(magnets: List<String>)
+
     fun addDownloadedListener(listener: DownloadedListener)
 
     fun addRatioLimitListener(listener: RatioLimitListener)

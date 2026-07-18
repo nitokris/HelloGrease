@@ -20,4 +20,9 @@ class JavWorkController(
         javService.download(dto.toEntity())
     }
 
+    @PostMapping("/batch")
+    fun batchDownload(@RequestBody dtos: List<String>) {
+        javService.batchDownload(dtos)
+    }
+
 }
