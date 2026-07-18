@@ -10,6 +10,8 @@ interface Downloader {
 
     fun download(magnets: List<String>)
 
+    fun download(url: String)
+
     fun addDownloadedListener(listener: DownloadedListener)
 
     fun addRatioLimitListener(listener: RatioLimitListener)

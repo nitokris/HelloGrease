@@ -61,6 +61,14 @@ class QBitTorrentDownloader(
         }
     }
 
+    override fun download(url: String) {
+        runBlocking(Dispatchers.IO) {
+            qBittorrentClient.addTorrent {
+                urls += url
+            }
+        }
+    }
+
     override fun exists(hash: String): Boolean {
         return runBlocking(Dispatchers.IO) {
             qBittorrentClient.getTorrents(hashes = listOf(hash)).isNotEmpty()

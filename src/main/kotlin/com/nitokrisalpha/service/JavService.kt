@@ -108,7 +108,11 @@ class JavService {
     }
 
     fun batchDownload(urls: List<String>) {
-        downloader.download(urls)
+        urls.forEach {
+            if(!downloader.exists(it)) {
+                downloader.download(it)
+            }
+        }
     }
 
 }
