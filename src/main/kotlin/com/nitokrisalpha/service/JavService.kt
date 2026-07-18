@@ -109,7 +109,7 @@ class JavService {
 
     fun batchDownload(urls: List<String>) {
         urls.forEach {
-            if(!downloader.exists(it)) {
+            if(!downloader.exists(JavWork.extractHashFromMagnet(it))) {
                 downloader.download(it)
             }
         }
