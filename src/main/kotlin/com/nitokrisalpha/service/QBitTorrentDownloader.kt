@@ -34,6 +34,7 @@ class QBitTorrentDownloader(
                         true
                     }
                     .collect { mainData ->
+                        log.info("正常读取到qbitorrent数据")
                         mainData.torrents.forEach { (_, torrent) ->
                             if (torrent.progress == 1f) {
                                 downloadedListeners.forEach { it.process(torrent) }
