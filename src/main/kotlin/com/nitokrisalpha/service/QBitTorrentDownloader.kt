@@ -3,6 +3,7 @@ package com.nitokrisalpha.service
 import com.nitokrisalpha.entity.JavWork
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import qbittorrent.QBittorrentClient
 import kotlin.concurrent.thread
@@ -11,6 +12,8 @@ import kotlin.concurrent.thread
 class QBitTorrentDownloader(
     private val qBittorrentClient: QBittorrentClient
 ) : Downloader {
+
+    private val log = LoggerFactory.getLogger(javaClass)
 
     private val downloadedListeners = arrayListOf<DownloadedListener>()
     private val ratioLimitListeners = arrayListOf<RatioLimitListener>()
@@ -22,19 +25,25 @@ class QBitTorrentDownloader(
     init {
         thread {
             runBlocking(Dispatchers.IO) {
-                qBittorrentClient.observeMainData().collect { mainData ->
-                    mainData.torrents.forEach { torrentInfo ->
-                        val torrent = torrentInfo.value
-                        if (torrent.progress == 1f) {
-                            downloadedListeners.forEach {
-                                it.process(torrent)
+                while (true) {
+                    try {
+                        qBittorrentClient.observeMainData().collect { mainData ->
+                            mainData.torrents.forEach { torrentInfo ->
+                                val torrent = torrentInfo.value
+                                if (torrent.progress == 1f) {
+                                    downloadedListeners.forEach {
+                                        it.process(torrent)
+                                    }
+                                }
+                                if (torrent.ratio == 2f) {
+                                    ratioLimitListeners.forEach {
+                                        it.process(torrent)
+                                    }
+                                }
                             }
                         }
-                        if (torrent.ratio == 2f) {
-                            ratioLimitListeners.forEach {
-                                it.process(torrent)
-                            }
-                        }
+                    } catch (e: Throwable) {
+                        log.error("Watching torrent error", e)
                     }
                 }
             }
