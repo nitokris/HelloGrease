@@ -82,6 +82,15 @@ class QBitTorrentDownloader(
         }
     }
 
+    override fun remove(magnet: String) {
+        runBlocking(Dispatchers.IO) {
+            val torrent = qBittorrentClient.getTorrents().find { it.magnetUri == magnet }
+            if (torrent != null) {
+                qBittorrentClient.deleteTorrents(hashes = listOf(torrent.hash), deleteFiles = true)
+            }
+        }
+    }
+
     override fun addDownloadedListener(listener: DownloadedListener) {
         downloadedListeners += listener
     }

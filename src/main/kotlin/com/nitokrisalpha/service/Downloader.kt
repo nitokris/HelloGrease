@@ -17,4 +17,6 @@ interface Downloader {
     fun addRatioLimitListener(listener: RatioLimitListener)
 
     fun exists(hash: String): Boolean
+
+    fun remove(magnet: String)
 }

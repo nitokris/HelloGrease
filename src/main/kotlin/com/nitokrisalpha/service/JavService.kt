@@ -44,8 +44,15 @@ class JavService {
             }
         }
 
-        downloader.addRatioLimitListener {
-            println("Ratio limit listener:${it.ratio}")
+        downloader.addRatioLimitListener { torrent ->
+            log.info("Ratio limited ${torrent.name}")
+            repository.findByHash(torrent.hash)?.let { work ->
+                if (work.status == Status.MOVED) {
+                    log.info("start remove task")
+                    downloader.remove(torrent.magnetUri)
+                    log.info("finish task")
+                }
+            }
         }
     }
 
@@ -55,8 +62,7 @@ class JavService {
         val downloaderPath = downloader.basePath
         val fromPath = torrentSavePath.replace(downloaderPath, pathConfig.from)
         val targetPath = torrentSavePath.replace(downloaderPath, pathConfig.target)
-        println(fromPath)
-        println(targetPath)
+        log.info("move from $fromPath to $targetPath")
         val srcFile = File(fromPath)
         if (!srcFile.exists()) {
             log.warn("srcFile does not exist")
@@ -109,7 +115,7 @@ class JavService {
 
     fun batchDownload(urls: List<String>) {
         urls.forEach {
-            if(!downloader.exists(JavWork.extractHashFromMagnet(it))) {
+            if (!downloader.exists(JavWork.extractHashFromMagnet(it))) {
                 downloader.download(it)
             }
         }
