@@ -2,6 +2,8 @@ package com.nitokrisalpha.service
 
 import com.nitokrisalpha.entity.JavWork
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
@@ -23,29 +25,24 @@ class QBitTorrentDownloader(
         }
 
     init {
-        thread {
-            runBlocking(Dispatchers.IO) {
-                while (true) {
-                    try {
-                        qBittorrentClient.observeMainData().collect { mainData ->
-                            mainData.torrents.forEach { torrentInfo ->
-                                val torrent = torrentInfo.value
-                                if (torrent.progress == 1f) {
-                                    downloadedListeners.forEach {
-                                        it.process(torrent)
-                                    }
-                                }
-                                if (torrent.ratio == 2f) {
-                                    ratioLimitListeners.forEach {
-                                        it.process(torrent)
-                                    }
-                                }
+        thread(isDaemon = true) {
+            runBlocking {
+                qBittorrentClient.observeMainData()
+                    .retry(Long.MAX_VALUE) { cause ->
+                        log.error("监听异常，5秒后重连...", cause)
+                        delay(5_000)
+                        true
+                    }
+                    .collect { mainData ->
+                        mainData.torrents.forEach { (_, torrent) ->
+                            if (torrent.progress == 1f) {
+                                downloadedListeners.forEach { it.process(torrent) }
+                            }
+                            if (torrent.ratio == 2f) {
+                                ratioLimitListeners.forEach { it.process(torrent) }
                             }
                         }
-                    } catch (e: Throwable) {
-                        log.error("Watching torrent error", e)
                     }
-                }
             }
         }
     }
