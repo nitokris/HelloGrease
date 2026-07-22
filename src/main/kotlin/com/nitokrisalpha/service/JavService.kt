@@ -27,20 +27,30 @@ class JavService {
         }
         downloader.addDownloadedListener { torrent ->
             val hash = torrent.hash
-            repository.findByHash(hash)?.let { work ->
-                if (work.status == Status.DOWNLOADING) {
-                    // 设置为已下载
-                    work.status = Status.DOWNLOADED
-                    repository.save(work)
+            val javWork = repository.findByHash(hash)
+            if (javWork != null) {
+                javWork.let { work ->
+                    if (work.status == Status.DOWNLOADING) {
+                        // 设置为已下载
+                        work.status = Status.DOWNLOADED
+                        repository.save(work)
+                    }
+                    if (work.status == Status.DOWNLOADED) {
+                        // 执行移动
+                        work.status = Status.MOVING
+                        repository.save(work)
+                        doMove(torrent)
+                        work.status = Status.MOVED
+                        repository.save(work)
+                    }
                 }
-                if (work.status == Status.DOWNLOADED) {
-                    // 执行移动
-                    work.status = Status.MOVING
-                    repository.save(work)
-                    doMove(torrent)
-                    work.status = Status.MOVED
-                    repository.save(work)
-                }
+            } else {
+                val work = JavWork("HANDLE ADD", torrent.magnetUri)
+                work.status = Status.MOVING
+                repository.save(work)
+                doMove(torrent)
+                work.status = Status.MOVED
+                repository.save(work)
             }
         }
 
