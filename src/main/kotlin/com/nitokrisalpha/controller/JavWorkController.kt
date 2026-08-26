@@ -14,9 +14,7 @@ class JavWorkController(
 
 
     @PostMapping("")
-    fun download(
-        @RequestBody dto: JavDto
-    ) {
+    fun download(@RequestBody dto: JavDto) {
         javService.download(dto.toEntity())
     }
 

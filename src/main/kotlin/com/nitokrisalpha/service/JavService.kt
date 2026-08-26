@@ -103,7 +103,7 @@ class JavService {
     fun download(javWork: JavWork) {
         val findByHash = repository.findByHash(javWork.hash)
         if (findByHash != null) {
-            log.info("该种子已入库")
+            log.info("该种子已入库：{}", javWork.name)
             javWork.id = findByHash.id
             javWork.status = findByHash.status
         } else {
