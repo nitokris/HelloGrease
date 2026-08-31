@@ -39,18 +39,23 @@ class JavService {
                         // 执行移动
                         work.status = Status.MOVING
                         repository.save(work)
-                        doMove(torrent)
-                        work.status = Status.MOVED
-                        repository.save(work)
+                        val moveSuccess = doMove(torrent)
+                        if (moveSuccess) {
+                            work.status = Status.MOVED
+                            repository.save(work)
+                        }
+
                     }
                 }
             } else {
                 val work = JavWork("HANDLE ADD", torrent.magnetUri)
                 work.status = Status.MOVING
                 repository.save(work)
-                doMove(torrent)
-                work.status = Status.MOVED
-                repository.save(work)
+                val moveSuccess = doMove(torrent)
+                if (moveSuccess) {
+                    work.status = Status.MOVED
+                    repository.save(work)
+                }
             }
         }
 
@@ -66,7 +71,7 @@ class JavService {
         }
     }
 
-    fun doMove(torrent: Torrent) {
+    fun doMove(torrent: Torrent): Boolean {
         log.info("start move")
         val torrentSavePath = torrent.contentPath
         val downloaderPath = downloader.basePath
@@ -76,7 +81,7 @@ class JavService {
         val srcFile = File(fromPath)
         if (!srcFile.exists()) {
             log.warn("srcFile does not exist")
-            return
+            return false
         }
         if (srcFile.isFile) {
             log.info("start copy file")
@@ -97,6 +102,7 @@ class JavService {
             }
         }
         log.info("copy end")
+        return true
     }
 
 
