@@ -19,4 +19,6 @@ interface Downloader {
     fun exists(hash: String): Boolean
 
     fun remove(magnet: String)
+
+    fun start(hash: String)
 }

@@ -91,6 +91,12 @@ class QBitTorrentDownloader(
         }
     }
 
+    override fun start(hash: String) {
+        runBlocking(Dispatchers.IO) {
+            qBittorrentClient.resumeTorrents(arrayListOf(hash))
+        }
+    }
+
     override fun addDownloadedListener(listener: DownloadedListener) {
         downloadedListeners += listener
     }
