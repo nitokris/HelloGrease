@@ -121,7 +121,7 @@ class JavService {
         }
         repository.save(javWork)
         log.info("开始下载")
-        if (javWork.hash != null && downloader.exists(javWork.hash) && javWork.status != Status.MOVED) {
+        if (javWork.hash != null && downloader.exists(javWork.hash)) {
             log.info("该种子已存在：${javWork.magnet}")
             downloader.start(javWork.hash)
         } else {
