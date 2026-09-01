@@ -78,6 +78,7 @@ class QBitTorrentDownloader(
 
     override fun exists(hash: String): Boolean {
         return runBlocking(Dispatchers.IO) {
+            log.info("check exists hash is $hash")
             qBittorrentClient.getTorrents(hashes = listOf(hash)).isNotEmpty()
         }
     }
