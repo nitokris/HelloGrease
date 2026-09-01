@@ -93,7 +93,12 @@ class QBitTorrentDownloader(
 
     override fun start(hash: String) {
         runBlocking(Dispatchers.IO) {
-            qBittorrentClient.resumeTorrents(arrayListOf(hash))
+            try {
+                qBittorrentClient.resumeTorrents(arrayListOf(hash))
+            } catch (e: Exception) {
+                log.info("resume torrent $hash error: ${e.message}")
+            }
+
         }
     }
 
