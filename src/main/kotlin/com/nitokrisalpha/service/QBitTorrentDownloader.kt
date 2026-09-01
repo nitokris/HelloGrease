@@ -95,7 +95,15 @@ class QBitTorrentDownloader(
     override fun start(hash: String) {
         runBlocking(Dispatchers.IO) {
             try {
-                qBittorrentClient.resumeTorrents(arrayListOf(hash))
+                val torrents = qBittorrentClient.getTorrents(hashes = listOf(hash))
+                if (torrents.isNotEmpty()) {
+                    torrents.forEach {
+                        if (it.progress != 1f) {
+                            qBittorrentClient.resumeTorrents(arrayListOf(hash))
+                        }
+                    }
+                }
+
             } catch (e: Exception) {
                 log.info("resume torrent $hash error: ${e.message}")
             }
