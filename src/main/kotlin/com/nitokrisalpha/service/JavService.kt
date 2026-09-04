@@ -47,15 +47,6 @@ class JavService {
 
                     }
                 }
-            } else {
-                val work = JavWork("HANDLE ADD", torrent.magnetUri)
-                work.status = Status.MOVING
-                repository.save(work)
-                val moveSuccess = doMove(torrent)
-                if (moveSuccess) {
-                    work.status = Status.MOVED
-                    repository.save(work)
-                }
             }
         }
 
