@@ -90,8 +90,10 @@ class JavService {
                     log.info("code is empty, copy whole directory")
                     srcFile.copyRecursively(targetFile)
                 } else {
+                    val codeRegex = buildCodeRegex(work.code)
                     val files = srcFile.listFiles { fileItem ->
-                        fileItem.isFile && isVideoFile(fileItem.name) && fileItem.name.contains(work.code)
+                        fileItem.isFile && isVideoFile(fileItem.name) &&
+                            (codeRegex?.containsMatchIn(fileItem.name) ?: fileItem.name.contains(work.code))
                     }
                     files.sortBy { it.name }
                     files.forEachIndexed { index, srcItem ->
@@ -113,6 +115,13 @@ class JavService {
         )
         val extension = fileName.substringAfterLast('.', "").lowercase()
         return extension in videoExtensions
+    }
+
+    private fun buildCodeRegex(code: String): Regex? {
+        val match = Regex("([a-zA-Z]+)[^0-9]*([0-9]+)").find(code) ?: return null
+        val prefix = Regex.escape(match.groupValues[1])
+        val digits = match.groupValues[2]
+        return Regex("$prefix[\\s\\-_.]*0*$digits", RegexOption.IGNORE_CASE)
     }
 
     fun download(javWork: JavWork) {
