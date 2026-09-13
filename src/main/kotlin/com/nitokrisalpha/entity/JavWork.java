@@ -37,11 +37,12 @@ public class JavWork {
 
     }
 
-    public JavWork(String name, String magnet, String code) {
+    public JavWork(String name, String magnet, String code,String javUid) {
         this.name = name;
         this.magnet = magnet;
         hash = extractHashFromMagnet(magnet);
         this.code = code;
+        this.javUid = javUid;
     }
 
     public String getHash() {
