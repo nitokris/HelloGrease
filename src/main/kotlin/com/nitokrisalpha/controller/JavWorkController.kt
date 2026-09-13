@@ -18,6 +18,11 @@ class JavWorkController(
         javService.download(dto.toEntity())
     }
 
+    @PostMapping("check")
+    fun checkDownloadStatus(@RequestBody sets: Set<String>): Map<String, Boolean> {
+        return javService.checkRecord(sets)
+    }
+
     @PostMapping("/batch")
     fun batchDownload(@RequestBody dtos: List<String>) {
         javService.batchDownload(dtos)

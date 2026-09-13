@@ -11,4 +11,7 @@ interface JavWorkRepository : JpaRepository<JavWork, Long> {
 
     fun findByHash(hash: String): JavWork?
 
+
+    fun findByJavUidIn(uids: Collection<String>): List<JavWork>
+
 }

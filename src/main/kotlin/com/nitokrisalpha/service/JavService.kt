@@ -60,7 +60,7 @@ class JavService {
         }
     }
 
-    fun doMove(torrent: Torrent,work: JavWork): Boolean {
+    fun doMove(torrent: Torrent, work: JavWork): Boolean {
         log.info("start move")
         val torrentSavePath = torrent.contentPath
         val downloaderPath = downloader.basePath
@@ -93,7 +93,7 @@ class JavService {
                     val codeRegex = buildCodeRegex(work.code)
                     val files = srcFile.listFiles { fileItem ->
                         fileItem.isFile && isVideoFile(fileItem.name) &&
-                            (codeRegex?.containsMatchIn(fileItem.name) ?: fileItem.name.contains(work.code))
+                                (codeRegex?.containsMatchIn(fileItem.name) ?: fileItem.name.contains(work.code))
                     }
                     files.sortBy { it.name }
                     files.forEachIndexed { index, srcItem ->
@@ -146,6 +146,23 @@ class JavService {
             log.info("已请求qb下载")
             downloader.download(javWork)
         }
+    }
+
+    fun checkRecord(sets: Set<String>): Map<String, Boolean> {
+        if (sets.isEmpty()) {
+            return emptyMap()
+        }
+        val works = repository.findByJavUidIn(sets)
+        val result = mutableMapOf<String, Boolean>()
+        for (uid in sets) {
+            result[uid] = false
+        }
+        for (work in works) {
+            if ((!work.javUid.isNullOrEmpty()) && sets.contains(work.javUid)) {
+                result[work.javUid] = true
+            }
+        }
+        return result
     }
 
     fun batchDownload(urls: List<String>) {

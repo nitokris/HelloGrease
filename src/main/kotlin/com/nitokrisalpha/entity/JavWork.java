@@ -30,11 +30,14 @@ public class JavWork {
     @Column(length = 5000)
     private String hash;
 
+    @Column
+    private String javUid = "";
+
     public JavWork() {
 
     }
 
-    public JavWork(String name, String magnet,String code) {
+    public JavWork(String name, String magnet, String code) {
         this.name = name;
         this.magnet = magnet;
         hash = extractHashFromMagnet(magnet);
@@ -96,5 +99,13 @@ public class JavWork {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public String getJavUid() {
+        return javUid;
+    }
+
+    public void setJavUid(String javUid) {
+        this.javUid = javUid;
     }
 }
