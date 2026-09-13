@@ -11,7 +11,7 @@ COPY build.gradle.kts settings.gradle.kts ./
 COPY gradle ./gradle
 
 # 2. 预下载项目依赖（代替原先会报错的 gradle build）
-RUN gradle dependencies --no-daemon
+RUN gradle dependencies --no-daemon --no-build-cache --info
 
 # 3. 复制源码
 COPY src ./src
