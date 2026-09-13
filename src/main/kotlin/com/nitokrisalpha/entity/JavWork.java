@@ -20,6 +20,9 @@ public class JavWork {
     @Column(length = 5000)
     private String magnet;
 
+    @Column
+    private String code = "";
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status = Status.CREATED;
@@ -31,10 +34,11 @@ public class JavWork {
 
     }
 
-    public JavWork(String name, String magnet) {
+    public JavWork(String name, String magnet,String code) {
         this.name = name;
         this.magnet = magnet;
         hash = extractHashFromMagnet(magnet);
+        this.code = code;
     }
 
     public String getHash() {
@@ -80,5 +84,17 @@ public class JavWork {
         Pattern pattern = Pattern.compile("urn:btih:([^&]+)", Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(magnet);
         return matcher.find() ? matcher.group(1) : null;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 }

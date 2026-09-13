@@ -4,9 +4,10 @@ import com.nitokrisalpha.entity.JavWork
 
 data class JavDto(
     val name: String,
-    val magnet: String
+    val magnet: String,
+    val code: String
 ) {
     fun toEntity(): JavWork {
-        return JavWork(name, magnet)
+        return JavWork(name, magnet, code)
     }
 }

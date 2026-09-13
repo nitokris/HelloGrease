@@ -28,24 +28,22 @@ class JavService {
         downloader.addDownloadedListener { torrent ->
             val hash = torrent.hash
             val javWork = repository.findByHash(hash)
-            if (javWork != null) {
-                javWork.let { work ->
-                    if (work.status == Status.DOWNLOADING) {
-                        // 设置为已下载
-                        work.status = Status.DOWNLOADED
+            javWork?.let { work ->
+                if (work.status == Status.DOWNLOADING) {
+                    // 设置为已下载
+                    work.status = Status.DOWNLOADED
+                    repository.save(work)
+                }
+                if (work.status == Status.DOWNLOADED) {
+                    // 执行移动
+                    work.status = Status.MOVING
+                    repository.save(work)
+                    val moveSuccess = doMove(torrent, work)
+                    if (moveSuccess) {
+                        work.status = Status.MOVED
                         repository.save(work)
                     }
-                    if (work.status == Status.DOWNLOADED) {
-                        // 执行移动
-                        work.status = Status.MOVING
-                        repository.save(work)
-                        val moveSuccess = doMove(torrent)
-                        if (moveSuccess) {
-                            work.status = Status.MOVED
-                            repository.save(work)
-                        }
 
-                    }
                 }
             }
         }
@@ -62,7 +60,7 @@ class JavService {
         }
     }
 
-    fun doMove(torrent: Torrent): Boolean {
+    fun doMove(torrent: Torrent,work: JavWork): Boolean {
         log.info("start move")
         val torrentSavePath = torrent.contentPath
         val downloaderPath = downloader.basePath
@@ -88,14 +86,34 @@ class JavService {
             val targetFile = File(targetPath)
             if (!targetFile.exists()) {
                 targetFile.mkdirs()
-                targetFile.createNewFile()
-                srcFile.copyRecursively(targetFile)
+                if (work.code.isNullOrEmpty()) {
+                    log.info("code is empty, copy whole directory")
+                    srcFile.copyRecursively(targetFile)
+                } else {
+                    val files = srcFile.listFiles { fileItem ->
+                        fileItem.isFile && isVideoFile(fileItem.name) && fileItem.name.contains(work.code)
+                    }
+                    files.sortBy { it.name }
+                    files.forEachIndexed { index, srcItem ->
+                        val suffix = if (files.size == 1) "" else "-cd${index + 1}"
+                        val targetFileItem = File(targetFile, "${work.code}${suffix}.${srcItem.extension}")
+                        srcItem.copyTo(targetFileItem, true)
+                    }
+                }
             }
         }
         log.info("copy end")
         return true
     }
 
+    fun isVideoFile(fileName: String): Boolean {
+        val videoExtensions = setOf(
+            "mp4", "mkv", "avi", "mov", "wmv",
+            "flv", "webm", "m4v", "3gp", "ts"
+        )
+        val extension = fileName.substringAfterLast('.', "").lowercase()
+        return extension in videoExtensions
+    }
 
     fun download(javWork: JavWork) {
         val findByHash = repository.findByHash(javWork.hash)
