@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 等效 io.spring.dependency-management + org.springframework.boot 插件 -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.16</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.nitokrisalpha</groupId>
+    <artifactId>javdb_tool_change</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>javdb</name>
+    <description>javdb</description>
+
+    <properties>
+        <!-- 等效 java.toolchain JDK 17（按约定仅设置编译级别） -->
+        <java.version>17</java.version>
+        <kotlin.version>2.0.21</kotlin.version>
+        <ktor.version>3.0.3</ktor.version>
+        <qbittorrent.version>1.1.0-alpha02</qbittorrent.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.module</groupId>
+            <artifactId>jackson-module-kotlin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+    <!-- Ktor/qbittorrent 是 Kotlin Multiplatform 库，Maven 需使用 -jvm 变体 artifact（根 artifact 仅有元数据） -->
+    <dependency>
+      <groupId>io.ktor</groupId>
+      <artifactId>ktor-client-core-jvm</artifactId>
+      <version>${ktor.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.ktor</groupId>
+      <artifactId>ktor-client-cio-jvm</artifactId>
+      <version>${ktor.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.drewcarlson</groupId>
+      <artifactId>qbittorrent-models-jvm</artifactId>
+      <version>${qbittorrent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.drewcarlson</groupId>
+      <artifactId>qbittorrent-client-jvm</artifactId>
+      <version>${qbittorrent.version}</version>
+    </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+        </dependency>
+        <!-- 等效 annotationProcessor("spring-boot-configuration-processor")：javac 自动运行 classpath 上的处理器 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- runtimeOnly -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- testImplementation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <!-- 等效 sourceSets.main.java.srcDir("src/main/kotlin") -->
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <configuration>
+                    <!-- 等效 freeCompilerArgs.addAll("-Xjsr305=strict") -->
+                    <args>
+                        <arg>-Xjsr305=strict</arg>
+                    </args>
+                    <jvmTarget>17</jvmTarget>
+                    <compilerPlugins>
+                        <plugin>all-open</plugin>
+                        <plugin>no-arg</plugin>
+                    </compilerPlugins>
+                    <pluginOptions>
+                        <!-- 等效 allOpen 块 + kotlin("plugin.jpa") 的 all-open 部分 -->
+                        <option>all-open:annotation=jakarta.persistence.Entity</option>
+                        <option>all-open:annotation=jakarta.persistence.MappedSuperclass</option>
+                        <option>all-open:annotation=jakarta.persistence.Embeddable</option>
+                        <!-- 等效 kotlin("plugin.spring") 默认注解列表 -->
+                        <option>all-open:annotation=org.springframework.stereotype.Component</option>
+                        <option>all-open:annotation=org.springframework.transaction.annotation.Transactional</option>
+                        <option>all-open:annotation=org.springframework.scheduling.annotation.Async</option>
+                        <option>all-open:annotation=org.springframework.cache.annotation.Cacheable</option>
+                        <option>all-open:annotation=org.springframework.boot.test.context.SpringBootTest</option>
+                        <option>all-open:annotation=org.springframework.test.context.junit4.SpringRunner</option>
+                        <!-- 等效 kotlin("plugin.jpa") 的 no-arg 部分（invokeInitializers=true） -->
+                        <option>no-arg:annotation=jakarta.persistence.Entity</option>
+                        <option>no-arg:annotation=jakarta.persistence.MappedSuperclass</option>
+                        <option>no-arg:annotation=jakarta.persistence.Embeddable</option>
+                        <option>no-arg:invokeInitializers=true</option>
+                    </pluginOptions>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-allopen</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-noarg</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <!-- 提前到 process-resources，确保 Kotlin 先于 javac 编译（Java 类可引用 Kotlin 类） -->
+                    <execution>
+                        <id>compile</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

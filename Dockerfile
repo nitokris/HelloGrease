@@ -1,28 +1,27 @@
 # ---- 构建阶段 ----
-FROM gradle:jdk17 AS builder
+FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# 设置 JVM 内存与禁用守护进程，防止在 Docker 内 GC 暴毙卡死
-ENV GRADLE_OPTS="-Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=\"-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError\""
+# 设置 Maven JVM 内存，防止在 Docker 内 OOM
+ENV MAVEN_OPTS="-Xmx2048m -XX:+HeapDumpOnOutOfMemoryError"
 
-# 1. 先复制依赖配置文件
-COPY build.gradle.kts settings.gradle.kts ./
-COPY gradle ./gradle
+# 1. 先复制 pom 文件
+COPY pom.xml ./
 
-# 2. 预下载项目依赖（代替原先会报错的 gradle build）
-RUN gradle dependencies --no-daemon --no-build-cache --info
+# 2. 预下载项目依赖（利用 Docker 层缓存）
+RUN mvn dependency:go-offline -B
 
 # 3. 复制源码
 COPY src ./src
 
-# 4. 执行打包（去掉了会清空缓存的 clean，保留 --build-cache）
-RUN gradle bootJar --no-daemon --build-cache -x test
+# 4. 执行打包（跳过测试）
+RUN mvn package -B -DskipTests
 
 # ---- 运行阶段 ----
 FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
-COPY --from=builder /app/build/libs/*.jar app.jar
+COPY --from=builder /app/target/*.jar app.jar
 
 CMD ["sh", "-c", "java -jar /app/app.jar"]
